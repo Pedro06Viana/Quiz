@@ -3,9 +3,16 @@ import Questionario from '../components/Questionario'
 import QuestaoModel from '../model/questao'
 import { useRouter } from 'next/router'
 
-const BASE_URL = 'http://localhost:3000/api'
 
 export default function Home() {
+
+  const { asPath } = useRouter();
+  const origin =
+    typeof window !== 'undefined' && window.location.origin
+      ? window.location.origin
+      : '';
+
+  const URL = `${origin}${asPath}`;
 
   const [idsQuestoes, setIdsQuestoes] = useState<number[]>([])
   const [questao, setQuestao] = useState<QuestaoModel>()
@@ -13,14 +20,13 @@ export default function Home() {
   const router = useRouter()
 
   async function carregarIdsQuestoes() {
-    const resposta = await fetch(`${BASE_URL}/questionario`)
+    const resposta = await fetch(`${URL}/api/questionario`)
     const ids = await resposta.json()
     setIdsQuestoes(ids)
-
   }
 
   async function carregarQuestao(idQuestao: number) {
-    const resposta = await fetch(`${BASE_URL}/questoes/${idQuestao}`)
+    const resposta = await fetch(`${URL}/api/questoes/${idQuestao}`)
     const objQuestaoJson = await resposta.json()
     const novaQuestao = QuestaoModel.fromObj(objQuestaoJson);
     setQuestao(novaQuestao)
@@ -65,14 +71,14 @@ export default function Home() {
   }
 
   return (
-    questao ?(
+    questao ? (
       <Questionario
         questao={questao}
         ultima={idProximaPergunta() === undefined}
         questaoRespondida={questaoRespondida}
         irParaProximoPasso={irParaProximoPasso}
       />)
-    : false
+      : false
 
   )
 }
